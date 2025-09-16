@@ -6,6 +6,7 @@ import { Toaster, toast } from "react-hot-toast";
 function Home() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true); // Loading state
+  const [searchFilter, setSearchFilter] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,6 +49,17 @@ function Home() {
       });
   };
 
+  // Filter data based on name and phone number using single search field
+  const filteredData = data.filter((item) => {
+    if (searchFilter === "") return true;
+
+    const searchTerm = searchFilter.toLowerCase();
+    const nameMatch = item.name?.toLowerCase().includes(searchTerm);
+    const phoneMatch = item.phoneno?.toString().includes(searchFilter);
+
+    return nameMatch || phoneMatch;
+  });
+
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mb-4 flex justify-between">
@@ -68,6 +80,36 @@ function Home() {
         >
           Logout
         </button>
+      </div>
+
+      {/* Search Section */}
+      <div className="mb-6 bg-gray-800 p-4 rounded-lg shadow-md">
+        <h3 className="text-white text-lg font-semibold mb-4">Search Data</h3>
+        <div className="flex flex-col md:flex-row gap-4 items-end">
+          <div className="flex-1">
+            <label className="block text-white text-sm font-medium mb-2">
+              Search by Name or Phone Number:
+            </label>
+            <input
+              type="text"
+              placeholder="Enter name or phone number to search..."
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <button
+            onClick={() => setSearchFilter("")}
+            className="bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition duration-300 whitespace-nowrap"
+          >
+            Clear Search
+          </button>
+        </div>
+        <div className="mt-4">
+          <div className="text-white text-sm">
+            Showing {filteredData.length} of {data.length} records
+          </div>
+        </div>
       </div>
 
       {loading ? (
@@ -115,7 +157,7 @@ function Home() {
               </tr>
             </thead>
             <tbody>
-              {data.map((value, index) => (
+              {filteredData.map((value, index) => (
                 <tr key={index} className="hover:bg-gray-700">
                   <td className="py-2 px-4 border-b border-gray-600">
                     {value.id}
